@@ -71,7 +71,30 @@ namespace Example_RichTextBox_Search
                 return;
 
             StringComparison stringComparison = (StringComparison)StringComparisonComboBox.SelectedItem;
-            SearchInRichTextBox(rtb, FindTextBox.Text, stringComparison);
+            string searchFor = ToStringComparison(FindTextBox.Text, stringComparison);
+            SearchInRichTextBox(rtb, searchFor, stringComparison);
+        }
+
+        private static string ToStringComparison(string text, StringComparison stringComparison)
+        {
+            string compare;
+
+            switch (stringComparison)
+            {
+                case StringComparison.Ordinal:
+                case StringComparison.CurrentCulture:
+                case StringComparison.InvariantCulture:
+                    compare = text;
+                    break;
+                case StringComparison.OrdinalIgnoreCase:
+                case StringComparison.CurrentCultureIgnoreCase:
+                case StringComparison.InvariantCultureIgnoreCase:
+                    compare = text.ToLower();
+                    break;
+                default: throw new ArgumentException("Unknown StringComparison");
+            }
+
+            return compare;
         }
 
         // Derived from https://social.msdn.microsoft.com/Forums/silverlight/en-US/a81df766-be43-4292-9924-6ec669cf25a3/richtextbox-search-how-to-scroll-found-text-into-view-select-and-put-cursor-to-it?forum=silverlightcontrols
@@ -109,7 +132,8 @@ namespace Example_RichTextBox_Search
             while (current != null)
             {
                 // The TextRange that contains the current character
-                TextRange text = new(current.GetPositionAtOffset(0, LogicalDirection.Forward), current.GetPositionAtOffset(1, LogicalDirection.Forward));
+                TextRange text = new(current.GetPositionAtOffset(0, LogicalDirection.Forward), 
+                    current.GetPositionAtOffset(1, LogicalDirection.Forward));
 
                 // If the current character is the start of the searched text
                 if (text.Text == searchText[0].ToString())
