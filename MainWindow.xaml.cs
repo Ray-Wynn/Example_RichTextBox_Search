@@ -84,19 +84,53 @@ namespace Example_RichTextBox_Search
                 searchRange.Select(block.ContentStart, block.ContentEnd);                
                 
                 if (searchRange.Text.Contains(searchFor, stringComparison))
-                {                                                                               
-                    searchRange.ApplyPropertyValue(TextElement.FontWeightProperty, FontWeights.Bold);
-                    searchRange.ApplyPropertyValue(TextElement.FontSizeProperty, 20.0);
-                    searchRange.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Green); // TextElement required for BackgroundProperty.
-                    searchRange.ApplyPropertyValue(TextElement.ForegroundProperty, Brushes.Red); // TextElement not required for ForegroundProperty?
-                    
-                    Rect startCharRect = block.ContentStart.GetCharacterRect(LogicalDirection.Forward);
+                {
+                    if (FindTextInRange(searchRange, searchFor) is TextRange textRange)
+                    {
+                        textRange.ApplyPropertyValue(TextElement.FontWeightProperty, FontWeights.Bold);
+                        textRange.ApplyPropertyValue(TextElement.FontSizeProperty, 20.0);
+                        textRange.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Green); // TextElement required for BackgroundProperty.
+                        textRange.ApplyPropertyValue(TextElement.ForegroundProperty, Brushes.Red); // TextElement not required for ForegroundProperty?
 
-                    // Attempt to scroll searchFor into midpoint (rtb.ActualHeight / 2.0) of view
-                    rtb.ScrollToVerticalOffset(startCharRect.Top - rtb.ActualHeight / 2.0);
+                        TextPointer textPointer = textRange.Start;
+                        //Rect startCharRect = block.ContentStart.GetCharacterRect(LogicalDirection.Forward);
+                        Rect startCharRect = textRange.Start.GetCharacterRect(LogicalDirection.Forward);
+                        // Attempt to scroll searchFor into midpoint (rtb.ActualHeight / 2.0) of view
+                        rtb.ScrollToVerticalOffset(startCharRect.Top - rtb.ActualHeight / 2.0);
+                    }
                     return;
                 }
             }
+        }
+
+        public TextRange? FindTextInRange(TextRange searchRange, string searchText)
+        {
+            // The start position of the search
+            TextPointer current = searchRange.Start.GetInsertionPosition(LogicalDirection.Forward);
+
+            while (current != null)
+            {
+                // The TextRange that contains the current character
+                TextRange text = new(current.GetPositionAtOffset(0, LogicalDirection.Forward), current.GetPositionAtOffset(1, LogicalDirection.Forward));
+
+                // If the current character is the start of the searched text
+                if (text.Text == searchText[0].ToString())
+                {
+                    TextRange match = new(current, current.GetPositionAtOffset(searchText.Length, LogicalDirection.Forward));
+
+                    if (match.Text == searchText)
+                    {
+                        // Return the match
+                        return match;
+                    }
+                }
+
+                // Move to the next character
+                current = current.GetPositionAtOffset(1, LogicalDirection.Forward);
+            }
+
+            // Return null if no match found
+            return null;
         }
     }
 }
