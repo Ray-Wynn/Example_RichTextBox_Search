@@ -1,0 +1,3 @@
+# Example_RichTextBox_Search
+A simple, no frills, example of how to find (the first occurence) of text in a Rich Text Format (rtf) file.
+Something to get started with and build on...
