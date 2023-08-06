@@ -85,14 +85,14 @@ namespace Example_RichTextBox_Search
                 
                 if (searchRange.Text.Contains(searchFor, stringComparison))
                 {                                        
-                    TextPointer current = searchRange.Start.GetPositionAtOffset(0 , LogicalDirection.Forward);
+                    TextPointer textPointer = searchRange.Start.GetPositionAtOffset(0 , LogicalDirection.Forward);
                     
                     searchRange.ApplyPropertyValue(TextElement.FontWeightProperty, FontWeights.Bold);
                     searchRange.ApplyPropertyValue(TextElement.FontSizeProperty, 20.0);
                     searchRange.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Green); // TextElement required for BackgroundProperty.
                     searchRange.ApplyPropertyValue(TextElement.ForegroundProperty, Brushes.Red); // TextElement not required for ForegroundProperty?
 
-                    Rect startCharRect = current.GetCharacterRect(LogicalDirection.Forward);
+                    Rect startCharRect = textPointer.GetCharacterRect(LogicalDirection.Forward);
 
                     // Attempt to scroll searchFor into midpoint (rtb.ActualHeight / 2.0) of view
                     rtb.ScrollToVerticalOffset(startCharRect.Top - rtb.ActualHeight / 2.0);
