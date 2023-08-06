@@ -84,9 +84,7 @@ namespace Example_RichTextBox_Search
                 searchRange.Select(block.ContentStart, block.ContentEnd);                
                 
                 if (searchRange.Text.Contains(searchFor, stringComparison))
-                {                                        
-                    TextPointer textPointer = searchRange.Start.GetPositionAtOffset(0 , LogicalDirection.Forward);
-                    
+                {                                                                               
                     searchRange.ApplyPropertyValue(TextElement.FontWeightProperty, FontWeights.Bold);
                     searchRange.ApplyPropertyValue(TextElement.FontSizeProperty, 20.0);
                     searchRange.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Green); // TextElement required for BackgroundProperty.
@@ -99,22 +97,6 @@ namespace Example_RichTextBox_Search
                     return;
                 }
             }
-        }
-
-        private bool WordPrefixContains(string text, string wordPrefix, StringComparison comparison)
-        {
-            var wordIndex = text.IndexOf(wordPrefix, comparison);
-            while (wordIndex > 0 && char.IsLetterOrDigit(text[wordIndex - 1]))
-            {
-                wordIndex = text.IndexOf(wordPrefix, wordIndex + 1, comparison);
-            }
-
-            if(wordIndex >= 0)
-            {
-                Debug.WriteLine(wordIndex.ToString());
-            }
-
-            return wordIndex >= 0;
         }
     }
 }
