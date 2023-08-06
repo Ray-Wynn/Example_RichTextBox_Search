@@ -28,7 +28,7 @@
         </Menu>
         <TextBlock Grid.Column="0" Grid.Row="1" Text="Search For " 
                    FontWeight="Bold" Background="Aquamarine" TextAlignment="Right"/>
-        <TextBox x:Name="FindTextBox" Grid.Column="1" Grid.Row="1" Background="Beige"/>
+        <TextBox x:Name="FindTextBox" Grid.Column="1" Grid.Row="1" Background="Beige" Text="implicitly"/>
         <ComboBox x:Name="StringComparisonComboBox" SelectedIndex="0" Grid.Column="2" Grid.Row="1"/>
         <Button x:Name="SearchButton" Grid.Column="3" Grid.Row="1" Width="200" Background="Aquamarine"
                 Content="Search" Click="SearchButton_Click"/>
