@@ -76,7 +76,7 @@ namespace Example_RichTextBox_Search
 
         // Derived from https://social.msdn.microsoft.com/Forums/silverlight/en-US/a81df766-be43-4292-9924-6ec669cf25a3/richtextbox-search-how-to-scroll-found-text-into-view-select-and-put-cursor-to-it?forum=silverlightcontrols
         private void SearchInRichTextBox(RichTextBox rtb, string searchFor, StringComparison stringComparison)
-        {
+        {            
             TextRange searchRange = new(rtb.Document.ContentStart, rtb.Document.ContentEnd);
 
             foreach (Block block in rtb.Document.Blocks)
@@ -91,8 +91,8 @@ namespace Example_RichTextBox_Search
                     searchRange.ApplyPropertyValue(TextElement.FontSizeProperty, 20.0);
                     searchRange.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Green); // TextElement required for BackgroundProperty.
                     searchRange.ApplyPropertyValue(TextElement.ForegroundProperty, Brushes.Red); // TextElement not required for ForegroundProperty?
-
-                    Rect startCharRect = textPointer.GetCharacterRect(LogicalDirection.Forward);
+                    
+                    Rect startCharRect = block.ContentStart.GetCharacterRect(LogicalDirection.Forward);
 
                     // Attempt to scroll searchFor into midpoint (rtb.ActualHeight / 2.0) of view
                     rtb.ScrollToVerticalOffset(startCharRect.Top - rtb.ActualHeight / 2.0);
