@@ -91,10 +91,10 @@ namespace Example_RichTextBox_Search
 
             foreach (Block block in rtb.Document.Blocks)
             {
-                searchRange.Select(block.ContentStart, block.ContentEnd);
+                searchRange.Select(block.ContentStart, block.ContentEnd);                
                 Debug.WriteLine(string.Format("Block text length = {0}", searchRange.Text.Length));
 
-                if (searchRange.Text.Contains(searchForComparison, stringComparison))
+                if (searchRange.Text.Contains(searchForComparison, stringComparison))                
                 {
                     if (FindTextInRange(searchRange, searchForComparison) is TextRange textRange)
                     {
@@ -106,7 +106,7 @@ namespace Example_RichTextBox_Search
                         Rect startCharRect = textRange.Start.GetCharacterRect(LogicalDirection.Forward);
                         // Attempt to scroll searchForComparison into midpoint (rtb.ActualHeight / 2.0) of view
                         rtb.ScrollToVerticalOffset(startCharRect.Top - rtb.ActualHeight / 2.0);
-
+                        
                         #region Flobbydust - Insert Button
                         Button b = new()
                         { // Unspecified width and button fills width
@@ -127,7 +127,7 @@ namespace Example_RichTextBox_Search
                         rtb.Document.Blocks.InsertBefore(block, blockUIContainer);
                         #endregion
 
-                        rtb.Focus();
+                        //rtb.Focus();
                     }
                     return true;
                 }
