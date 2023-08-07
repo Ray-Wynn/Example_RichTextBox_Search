@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Example_RichTextBox_Search"
         mc:Ignorable="d"
         Title="RichTextBox Search" Height="450" Width="800">
-    
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto"/>
@@ -33,13 +33,17 @@
         <Button x:Name="SearchButton" Grid.Column="3" Grid.Row="1" Width="200" Background="Aquamarine"
                 Content="Search" Click="SearchButton_Click"/>
 
-        <!-- Must place in grid cell for scroll bars to function -->
-        <RichTextBox x:Name="rtb" Grid.ColumnSpan="4" Grid.Row="2"                         
-                        SelectionBrush="BlueViolet"
-                        SelectionTextBrush="Yellow"
-                        
-                        HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
-                        SpellCheck.IsEnabled="True"/>
+        <!-- Must place in grid cell for scroll bars to function 
+                IsDocumentEnabled="True" to enable UIElement items 
+                Regardless of IsReadOnly status.
+        -->
+        <RichTextBox x:Name="rtb" Grid.ColumnSpan="4" Grid.Row="2"  
+                    IsReadOnly="False"
+                    IsDocumentEnabled="True"
+                    SelectionBrush="BlueViolet"
+                    SelectionTextBrush="Yellow"                        
+                    HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                    SpellCheck.IsEnabled="True"/>
 
     </Grid>
 </Window>

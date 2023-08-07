@@ -30,7 +30,7 @@ namespace Example_RichTextBox_Search
             InitializeComponent();
 
             StringComparisonComboBox.ItemsSource = Enum.GetValues(typeof(StringComparison));
-            Loaded += MainWindow_Loaded;
+            Loaded += MainWindow_Loaded;             
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -78,11 +78,11 @@ namespace Example_RichTextBox_Search
             if (!SearchInRichTextBox(rtb, searchFor, stringComparison))
             {
                 MessageBox.Show(string.Format("Searched for {0} not found!", searchFor));
-            }
+            }            
         }
         
         // Derived from https://social.msdn.microsoft.com/Forums/silverlight/en-US/a81df766-be43-4292-9924-6ec669cf25a3/richtextbox-search-how-to-scroll-found-searchFor-into-view-select-and-put-cursor-to-it?forum=silverlightcontrols
-        private static bool SearchInRichTextBox(RichTextBox rtb, string searchFor, StringComparison stringComparison)
+        private bool SearchInRichTextBox(RichTextBox rtb, string searchFor, StringComparison stringComparison)
         {                      
             string searchForComparison = MatchStringComparison(searchFor, stringComparison); // Match searchFor to StringComparison
             TextRange searchRange = new(rtb.Document.ContentStart, rtb.Document.ContentEnd);
@@ -102,10 +102,32 @@ namespace Example_RichTextBox_Search
                         textRange.ApplyPropertyValue(TextElement.FontSizeProperty, 20.0);
                         textRange.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Green); // TextElement required for BackgroundProperty.
                         textRange.ApplyPropertyValue(TextElement.ForegroundProperty, Brushes.Red); // TextElement not required for ForegroundProperty?
-                        
+
                         Rect startCharRect = textRange.Start.GetCharacterRect(LogicalDirection.Forward);
                         // Attempt to scroll searchForComparison into midpoint (rtb.ActualHeight / 2.0) of view
                         rtb.ScrollToVerticalOffset(startCharRect.Top - rtb.ActualHeight / 2.0);
+
+                        #region Flobbydust - Insert Button
+                        Button b = new()
+                        { // Unspecified width and button fills width
+                            Content = searchForComparison,
+                            FontSize = 20,
+                            FontWeight = FontWeights.Bold,
+                            Foreground = Brushes.Black,
+                            Background = Brushes.Green,
+                            IsEnabled = true,                            
+                        };
+
+                        b.Click += TestButtonClick;
+                        b.MouseDown += B_MouseDown;
+                        
+                        // Add button to block, then insert before current block
+                        BlockUIContainer blockUIContainer = new(b);
+                        blockUIContainer.MouseDown += B_MouseDown;
+                        rtb.Document.Blocks.InsertBefore(block, blockUIContainer);
+                        #endregion
+
+                        rtb.Focus();
                     }
                     return true;
                 }
@@ -113,7 +135,12 @@ namespace Example_RichTextBox_Search
 
             return false;
         }
-        
+
+        private void B_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            
+        }
+
         private static string MatchStringComparison(string searchFor, StringComparison stringComparison)
         {
             string compare;
@@ -165,6 +192,26 @@ namespace Example_RichTextBox_Search
 
             // Return null if no match found
             return null;
-        }        
+        }
+
+        private static Block? GetBlock(RichTextBox rtb, TextPointer textPointer)
+        {
+            foreach (Block block in rtb.Document.Blocks)
+            {
+                TextRange blockRange = new(block.ContentStart, block.ContentEnd);
+
+                if (blockRange.Contains(textPointer))
+                {
+                    return block;
+                }
+            }
+
+            return null;
+        }
+        
+        private static void TestButtonClick(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("You pressed that button didn't you!", "Don't Touch", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 }
