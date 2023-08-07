@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -15,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Example_RichTextBox_Search
 {
@@ -69,46 +71,32 @@ namespace Example_RichTextBox_Search
         {
             if (string.IsNullOrEmpty(FindTextBox.Text))
                 return;
-
+            
             StringComparison stringComparison = (StringComparison)StringComparisonComboBox.SelectedItem;
-            string searchFor = ToStringComparison(FindTextBox.Text, stringComparison);
-            SearchInRichTextBox(rtb, searchFor, stringComparison);
-        }
+            string searchFor = MatchStringComparison(FindTextBox.Text, stringComparison);
 
-        private static string ToStringComparison(string text, StringComparison stringComparison)
-        {
-            string compare;
-
-            switch (stringComparison)
+            if (!SearchInRichTextBox(rtb, searchFor, stringComparison))
             {
-                case StringComparison.Ordinal:
-                case StringComparison.CurrentCulture:
-                case StringComparison.InvariantCulture:
-                    compare = text;
-                    break;
-                case StringComparison.OrdinalIgnoreCase:
-                case StringComparison.CurrentCultureIgnoreCase:
-                case StringComparison.InvariantCultureIgnoreCase:
-                    compare = text.ToLower();
-                    break;
-                default: throw new ArgumentException("Unknown StringComparison");
+                MessageBox.Show(string.Format("Searched for {0} not found!", searchFor));
             }
-
-            return compare;
         }
-
-        // Derived from https://social.msdn.microsoft.com/Forums/silverlight/en-US/a81df766-be43-4292-9924-6ec669cf25a3/richtextbox-search-how-to-scroll-found-text-into-view-select-and-put-cursor-to-it?forum=silverlightcontrols
-        private static void SearchInRichTextBox(RichTextBox rtb, string searchFor, StringComparison stringComparison)
-        {            
+        
+        // Derived from https://social.msdn.microsoft.com/Forums/silverlight/en-US/a81df766-be43-4292-9924-6ec669cf25a3/richtextbox-search-how-to-scroll-found-searchFor-into-view-select-and-put-cursor-to-it?forum=silverlightcontrols
+        private static bool SearchInRichTextBox(RichTextBox rtb, string searchFor, StringComparison stringComparison)
+        {                      
+            string searchForComparison = MatchStringComparison(searchFor, stringComparison); // Match searchFor to StringComparison
             TextRange searchRange = new(rtb.Document.ContentStart, rtb.Document.ContentEnd);
+            
+            Debug.WriteLine(string.Format("Number of blocks = {0}", rtb.Document.Blocks.Count));
 
             foreach (Block block in rtb.Document.Blocks)
             {
-                searchRange.Select(block.ContentStart, block.ContentEnd);                
-                
-                if (searchRange.Text.Contains(searchFor, stringComparison))
+                searchRange.Select(block.ContentStart, block.ContentEnd);
+                Debug.WriteLine(string.Format("Block text length = {0}", searchRange.Text.Length));
+
+                if (searchRange.Text.Contains(searchForComparison, stringComparison))
                 {
-                    if (FindTextInRange(searchRange, searchFor) is TextRange textRange)
+                    if (FindTextInRange(searchRange, searchForComparison) is TextRange textRange)
                     {
                         textRange.ApplyPropertyValue(TextElement.FontWeightProperty, FontWeights.Bold);
                         textRange.ApplyPropertyValue(TextElement.FontSizeProperty, 20.0);
@@ -116,12 +104,36 @@ namespace Example_RichTextBox_Search
                         textRange.ApplyPropertyValue(TextElement.ForegroundProperty, Brushes.Red); // TextElement not required for ForegroundProperty?
                         
                         Rect startCharRect = textRange.Start.GetCharacterRect(LogicalDirection.Forward);
-                        // Attempt to scroll searchFor into midpoint (rtb.ActualHeight / 2.0) of view
+                        // Attempt to scroll searchForComparison into midpoint (rtb.ActualHeight / 2.0) of view
                         rtb.ScrollToVerticalOffset(startCharRect.Top - rtb.ActualHeight / 2.0);
                     }
-                    return;
+                    return true;
                 }
             }
+
+            return false;
+        }
+        
+        private static string MatchStringComparison(string searchFor, StringComparison stringComparison)
+        {
+            string compare;
+            
+            switch (stringComparison)
+            {
+                case StringComparison.Ordinal:
+                case StringComparison.CurrentCulture:
+                case StringComparison.InvariantCulture:
+                    compare = searchFor;
+                    break;
+                case StringComparison.OrdinalIgnoreCase:
+                case StringComparison.CurrentCultureIgnoreCase:
+                case StringComparison.InvariantCultureIgnoreCase:
+                    compare = searchFor.ToLower();
+                    break;
+                default: throw new ArgumentException("Unknown StringComparison");
+            }
+
+            return compare;
         }
 
         private static TextRange? FindTextInRange(TextRange searchRange, string searchText)
@@ -135,7 +147,7 @@ namespace Example_RichTextBox_Search
                 TextRange text = new(current.GetPositionAtOffset(0, LogicalDirection.Forward), 
                     current.GetPositionAtOffset(1, LogicalDirection.Forward));
 
-                // If the current character is the start of the searched text
+                // If the current character is the start of the searched searchFor
                 if (text.Text == searchText[0].ToString())
                 {
                     TextRange match = new(current, current.GetPositionAtOffset(searchText.Length, LogicalDirection.Forward));
@@ -153,6 +165,6 @@ namespace Example_RichTextBox_Search
 
             // Return null if no match found
             return null;
-        }
+        }        
     }
 }
